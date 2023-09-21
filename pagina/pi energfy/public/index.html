@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monitor testing</title>
+
+  <!-- include Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
+
+  <!-- include only the Firebase features as you need -->
+  <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-database.js"></script>
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/authentication.css">
+
+  <script>
+    // Replace with your app config object
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVDTYDC9KeuvVjyN0cRziRRDPYGDKolZ0",
+      authDomain: "pi-energy.firebaseapp.com",
+      projectId: "pi-energy",
+      storageBucket: "pi-energy.appspot.com",
+      messagingSenderId: "927578213079",
+      appId: "1:927578213079:web:4f1948db3c08a510697e92",
+      measurementId: "G-PHQVMKMSXJ"
+    };
+
+    // Initialize firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Make auth and database references
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+  </script>
+
+  <!-- include highchartsjs to build the charts-->
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <!-- include to use jquery-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <!--include icons from fontawesome-->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <!-- include Gauges Javascript library-->
+  <script src="https://cdn.rawgit.com/Mikhus/canvas-gauges/gh-pages/download/2.1.7/all/gauge.min.js"></script>
+  <!--reference for favicon-->
+  <link rel="icon" type="image/png" href="img/raspberry1.png">
+  <!--reference a stylesheet-->
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+
+</head>
+
+<body>
+
+  <!--TOP BAR-->
+  <div class="topnav">
+    <h1>Pi Energy <img src="img/icon_Rasp.png" class="icons"></h1>
+  </div>
+  <style>
+    .icons {
+      margin-bottom: -9px;
+
+
+    }
+  </style>
+
+  <!--AUTHENTICATION BAR (USER DETAILS/LOGOUT BUTTON)-->
+  <!-- <div class="hidden-authetication">
+      <div id="authentication-bar" style="display: none;">
+        <p><span id="authentication-status">User logged in</span>
+          <span id="user-details">USEREMAIL</span>
+          <a href="/" id="logout-link">(logout)</a>
+        </p>
+      </div>
+    </div> -->
+  <div id="authentication-bar" class="navbar1">
+    <p>
+      <span id="authentication-status" class="navbar1-item">User logged in</span>
+      <span id="user-details" class="navbar1-item">USEREMAIL</span>
+      <a href="/" id="logout-link" class="navbar1-item">logout</a>
+    </p>
+  </div>
+
+
+  <!--LOGIN FORM-->
+  <!-- <form id="login-form" style="display: none;">
+      <div class="form-elements-container">
+        <label for="input-email"><b>Email</b></label>
+        <input type="text" placeholder="Enter Username" id="input-email" required>
+
+        <label for="input-password"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" id="input-password" required>
+
+        <button type="submit" id="login-button">Login</button>
+        <p id="error-message" style="color:red;"></p>
+      </div> -->
+  <!-- <div class="login-box hidden-box" id="miBoton">
+        <h2>Login</h2>
+        <form id="login-form">
+          <div class="user-box form-element-container">
+            <input type="text" placeholder="Enter Username" id="input-email" required>
+            <label for="input-email">Username</label>
+          </div>
+          <div class="user-box">
+            <input type="password" placeholder="Enter Password" id="input-password" required>
+            <label for="input-password">Password</label>
+          </div>
+          <button type="submit" id="login-button" class="submit-button" display="None" href="#" class="button-link">
+            <a>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              Login
+          </button>
+          <p id="error-message" class="error-message" style="color:red;"></p>
+          <script>
+            var miBoton = document.getElementById("miBoton");
+            var miElemento = document.getElementById("miElemento");
+
+            miBoton.addEventListener("click", function() {
+              miElemento.classList.remove("miClase");
+            });
+          </script>
+        </form>
+      </div> -->
+  <div class="login-box" id="log-box">
+    <h2>Login</h2>
+    <form id="login-form">
+      <div class="user-box form-element-container">
+        <input type="text" id="input-email" required>
+        <label for="input-email">Username</label>
+      </div>
+      <div class="user-box">
+        <input type="password" id="input-password" required>
+        <label for="input-password">Password</label>
+      </div>
+      <button type="submit" id="login-button" class="submit-button">
+        <a>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          Login
+        </a>
+      </button>
+      <p id="error-message" class="error-message" style="color: red;"></p>
+    </form>
+  </div>
+
+
+  <!-- </form> -->
+
+  <!--CONTENT (SENSOR READINGS)-->
+  <div class="content-sign-in" id="content-sign-in" style="display: none;">
+
+    <!--LAST UPDATE-->
+    <p><span class="date-time">Last update: <span id="lastUpdate"></span></span></p>
+    <p>
+      <button class="button-checkbox">
+        <input type="checkbox" id="cards-checkbox" name="cards-checkbox">
+        <label for="cards-checkbox">Cards</label>
+      </button>
+      <button class="button-checkbox">
+        <input type="checkbox" id="gauges-checkbox" name="gauges-checkbox">
+        <label for="gauges-checkbox">gauges</label>
+      </button>
+      <button class="button-checkbox">
+        <input type="checkbox" id="charts-checkbox" name="charts-checkbox">
+        <label for="charts-checkbox">Charts</label>
+      </button>
+      <!-- Cards: <input type="checkbox" id="cards-checkbox" name="cards-checkbox" checked>
+        Gauges: <input type="checkbox" id="gauges-checkbox" name="gauges-checkbox" checked>
+        Charts: <input type="checkbox" id="charts-checkbox" name="charts-checkbox" unchecked> -->
+
+    </p>
+
+    <!--GAUGES-->
+    <div id="gauges-div">
+      <div class="cards">
+        <!--TEMPERATURE-->
+        <div class="card">
+          <h2>Corriente</h2>
+          <canvas id="gauge-temperature"></canvas>
+        </div>
+        <!--HUMIDITY-->
+        <div class="card">
+          <h2>Voltaje</h2>
+          <canvas id="gauge-humidity"></canvas>
+
+        </div>
+      </div>
+    </div>
+
+    <div id="cards-div">
+      <div class="cards">
+
+        <!--TEMPERATURE-->
+        <div class="card">
+          <p><i class="fas fa-charging-station" style="color:#059e8a;"></i> POWER</p>
+          <p><span class="reading"><span id="pot"></span> W</span></p>
+        </div>
+
+        <!--TEMPERATURE-->
+        <div class="card">
+          <p><i class="fas fa-thermometer-half" style="color:#059e8a;"></i> TEMPERATURE</p>
+          <p><span class="reading"><span id="temp"></span> &deg;C</span></p>
+        </div>
+
+
+        <!--TEMPERATURE-->
+        <div class="card">
+          <p><i class="fas fa-plug" style="color:#059e8a;"></i> KWH</p> 
+          <p><span class="reading"><span id="kwh"></span> KW</span></p>
+        </div>
+
+
+        <div class="card">
+          <!--LED-->
+          <div class="card-switch">
+            <h4><i class="fas fa-lightbulb"></i> Switch-0</h4>
+            <label class="switch">
+              <input type="checkbox" onchange="toggleLed(this)" ; id="led">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        <!--TEMPERATURE-->
+        <!--<div class="card">
+          <p><i class="fas fa-thermometer-half" style="color:#059e8a;"></i> TEMPERATURE</p>
+          <p><span class="reading"><span id="temp"></span> &deg;C</span></p>
+        </div>-->
+
+
+        <!--HUMIDITY-->
+        <div class="card">
+          <!--LED-->
+          <div class="card-switch">
+            <h4><i class="fas fa-lightbulb"></i> Switch-1</h4>
+            <label class="switch">
+              <input type="checkbox" onchange="toggleLed1(this)" ; id="led1">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <!--<p><i class="fas fa-tint" style="color:#00add6;"></i> HUMIDITY</p>
+          <p><span class="reading"><span id="hum"></span> &percnt;</span></p>-->
+        </div>
+        <!--PRESSURE-->
+        <div class="card">
+          <!--<p><i class="fas fa-angle-double-down" style="color:#e1e437;"></i> PRESSURE</p>
+          <p><span class="reading"><span id="volt"></span> hPa</span></p>-->
+          <div class="card-switch">
+            <h4><i class="fas fa-lightbulb"></i> Switch-2</h4>
+            <label class="switch">
+              <input type="checkbox" onchange="toggleLed1(this)" ; id="led2">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+
+
+
+      </div>
+    </div>
+
+
+    <!--CHARTS-->
+    <div id="charts-div" style="display:none">
+      <!--SET NUMBER OF READINGS INPUT FIELD-->
+      <div>
+        <p> Number of readings: <input type="number" id="charts-range"></p>
+      </div>
+      <!--TEMPERATURE-CHART-->
+      <div class="cards">
+        <div class="card">
+          <p><i class="fas fa-thermometer-half" style="color:#059e8a;"></i> CURRENT CHART</p>
+          <div id="chart-temperature" class="chart-container"></div>
+        </div>
+      </div>
+      <!--HUMIDITY-CHART-->
+      <div class="cards">
+        <div class="card">
+          <p><i class="fas fa-tint" style="color:#00add6;"></i> VOLTAGE CHART</p>
+          <div id="chart-humidity" class="chart-container"></div>
+        </div>
+      </div>
+      <!--PRESSURE-CHART-->
+      <div class="cards">
+        <div class="card">
+          <p><i class="fas fa-angle-double-down" style="color:#e1e437;"></i> POWER CHART</p>
+          <div id="chart-pressure" class="chart-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!--BUTTONS TO HANDLE DATA-->
+    <p>
+      <!--View data button-->
+      <button id="view-data-button" style="border-radius: 10%;">View all data</button>
+      <!--Hide data button-->
+      <button id="hide-data-button" style="display:none; border-radius: 10%;">Hide data</button>
+      <!--Delete data button-->
+      <button id="delete-button" class="deletebtn" style="border-radius: 10%;">Delete data</button>
+    </p>
+    <!--Modal to delete data-->
+    <div id="delete-modal" class="modal" sytle="display:none">
+      <span onclick="document.getElementById('delete-modal').style.display='none'" class="close"
+        title="Close Modal">×</span>
+      <form id="delete-data-form" class="modal-content" action="/">
+        <div class="container">
+          <h1>Delete Data</h1>
+          <p>Are you sure you want to delete all data from database?</p>
+          <div class="clearfix">
+            <button type="button" onclick="document.getElementById('delete-modal').style.display='none'"
+              class="cancelbtn">Cancel</button>
+            <button type="submit" onclick="document.getElementById('delete-modal').style.display='none'"
+              class="deletebtn">Delete</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!--TABLE WITH ALL DATA-->
+    <div class="cards">
+      <div class="card" id="table-container" style="display:none;">
+        <table id="readings-table">
+          <tr id="theader">
+            <th>Timestamp</th>
+            <th>Current (A)</th>
+            <th>Voltage (V)</th>
+            <th>Power (kWh)</th>
+          </tr>
+          <tbody id="tbody">
+          </tbody>
+        </table>
+        <p><button id="load-data" style="display:none;">More results...</button></p>
+      </div>
+    </div>
+
+  </div>
+
+  <!--INCLUDE JS FILES-->
+  <script src="scripts/auth.js"></script>
+  <script src="scripts/charts-definition.js"></script>
+  <script src="scripts/gauges-definition.js"></script>
+  <script src="scripts/index.js"></script>
+
+</body>
+
+</html>
